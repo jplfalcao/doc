@@ -6,7 +6,7 @@
 
 Montar um ambiente, de acordo com a topologia abaixo, provendo comunicação entre os servidores.  
 
-![Topologia](https://github.com/jplfalcao/doc/blob/main/lab-iptables/topologia.png)
+![Topologia](https://github.com/jplfalcao/doc/blob/main/lab_iptables/topologia.png)
 
 ### Objetivo
 
