@@ -48,9 +48,8 @@ Essa flexibilidade só é possível devido ao funcionamento da estrutura do LVM:
 
 O servidor, que será utilizado para este laboratório, está particionado de uma forma “tradicional”. Podemos verificar, a seguir, que o mesmo foi dividido apenas com duas partições: raiz (‘/’) e Swap:
 
-```shell
-fdisk -l
-
+```
+# fdisk -l
 Disk /dev/sda: 10 GiB, 10737418240 bytes, 20971520 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -72,30 +71,30 @@ Vamos criar um arquivo *vardata01* dentro do diretório */var*, utilizando todo 
 
 Verificando o espaço de armazenamento:
 
-```shell
-df -hT
+```
+# df -hT
 Filesystem     Type      Size  Used Avail Use% Mounted on
 /dev/sda1      xfs       9.0G  2.0G  7.1G  22% /
 ```
 
 Criando o arquivo:
 
-```shell
-fallocate -l 7G /var/vardata01
+```
+# fallocate -l 7G /var/vardata01
 ```
 
 Conferindo o armazenamento:
 
-```shell
-df -hT
+```
+# df -hT
 Filesystem     Type      Size  Used Avail Use% Mounted on
 /dev/sda1      xfs       9.0G  9.0G   44M 100% /
 ```
 
 E o espaço consumido pelo diretório */var*:
 
-```shell
-du -shc /var
+```
+# du -shc /var
 7.2G	/var
 7.2G	total
 ```
@@ -107,9 +106,8 @@ Como já dito, esse cenário pode apresentar problemas graves para serviços ess
 Precisamos adicionar um novo disco, que terá o tamanho de 20GB, ao servidor e preparar para utilizar LVM.
 Para isso, vamos fazer uso do utilitário [fdisk](https://man7.org/linux/man-pages/man8/fdisk.8.html):
 
-```shell
-fdisk /dev/sdb
-
+```
+# fdisk /dev/sdb
 Welcome to fdisk (util-linux 2.37.4).
 Changes will remain in memory only, until you decide to write them.
 Be careful before using the write command.
@@ -142,9 +140,8 @@ Syncing disks.
 
 Verificando o disco:
 
-```shell
-fdisk -l /dev/sdb
-
+```
+# fdisk -l /dev/sdb
 Disk /dev/sdb: 20 GiB, 21474836480 bytes, 41943040 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -162,16 +159,16 @@ Com o procedimento anterior, realizamos o particionamento do disco e escolhemos 
 
 Agora podemos criar um volume físico (PV), com o comando [`pvcreate`](https://man7.org/linux/man-pages/man8/pvcreate.8.html):
 
-```shell
-pvcreate /dev/sdb1
+```
+# pvcreate /dev/sdb1
   Physical volume "/dev/sdb1" successfully created.
   Creating devices file /etc/lvm/devices/system.devices
 ```
 
 Verificando os dados do PV:
 
-```shell
-pvdisplay
+```
+# pvdisplay
   "/dev/sdb1" is a new physical volume of "<20.00 GiB"
   --- NEW Physical volume ---
   PV Name               /dev/sdb1
@@ -187,15 +184,15 @@ pvdisplay
 
 Com o volume físico criado, podemos criar um grupo de volume (VG), com o comando [`vgcreate`](https://man7.org/linux/man-pages/man8/vgcreate.8.html):
 
-```shell
-vgcreate VGVAR /dev/sdb1 
+```
+# vgcreate VGVAR /dev/sdb1 
   Volume group "VGVAR" successfully created
 ```
 
 Verificando os dados do VG:
 
-```shell
-vgdisplay 
+```
+# vgdisplay 
    --- Volume group ---
   VG Name               VGVAR
   System ID             
@@ -220,8 +217,8 @@ vgdisplay
 
 Por fim, criamos o volume lógico (LV):
 
-```shell
-lvcreate -l 5119 -n bkpvar VGVAR
+```
+# lvcreate -l 5119 -n bkpvar VGVAR
   Logical volume "bkpvar" created.
 ```
 
@@ -234,8 +231,8 @@ Preferir (opinião pessoal) utilizar a opção **-l**, pelo maior aproveitamento
 
 Verificando os dados do LV:
 
-```shell
-lvdisplay 
+```
+# lvdisplay 
   --- Logical volume ---
   LV Path                /dev/VGVAR/bkpvar
   LV Name                bkpvar
@@ -255,38 +252,38 @@ lvdisplay
 
 Agora precisamos construir um sistema de arquivo para o LV. Com o utilitário [mkfs](https://man7.org/linux/man-pages/man8/mkfs.8.html) esse procedimento será realizado de forma simples e rápida:
 
-```shell
-mkfs.xfs /dev/VGVAR/bkpvar 
+```
+# mkfs.xfs /dev/VGVAR/bkpvar 
 ```
 
 <br>
 
 > O sistema de arquivo XFS, **NÃO** permite [reduzir](https://access.redhat.com/documentation/pt-br/red_hat_enterprise_linux/8/html/managing_file_systems/comparison-of-xfs-and-ext4_overview-of-available-file-systems) o tamanho.
 
-### Transferindo o diretório /var
+### Transferindo o diretório
 
 Vamos criar um diretório, que servirá de ponto de montagem temporário, para receber todo o conteúdo do */var*:
 
-```shell
-mkdir -p /mnt/var_old
+```
+# mkdir -p /mnt/var_old
 ```
 
 Após isso, montamos o LV no diretório criado:
 
-```shell
-mount /dev/mapper/VGVAR-bkpvar /mnt/var_old/
+```
+# mount /dev/mapper/VGVAR-bkpvar /mnt/var_old/
 ```
 
 Com o utilitário [rsync](https://man7.org/linux/man-pages/man1/rsync.1.html), realizamos o backup completo do diretório /var:
 
-```shell
-rsync -aX /var/. /mnt/var_old/.
+```
+# rsync -aX /var/. /mnt/var_old/.
 ```
 
 Ao finalizar:
 
-```shell
-df -hT
+```
+# df -hT
 Filesystem               Type      Size  Used Avail Use% Mounted on
 /dev/sda1                xfs       9.0G  9.0G   44M 100% /
 /dev/mapper/VGVAR-bkpvar xfs        20G  7.4G   13G  37% /mnt/var_old
@@ -295,49 +292,52 @@ Filesystem               Type      Size  Used Avail Use% Mounted on
 Com o backup realizado, precisamos montar o conteúdo do LV, no diretório raiz.
 A sequência de comandos a seguir, realizará esse procedimento:
 
-```shell
-umount /dev/mapper/VGVAR-bkpvar
-cd /
-mv var var_bkp
-mkdir var
+```
+# umount /dev/mapper/VGVAR-bkpvar
+
+# cd /
+
+# mv var var_bkp
+
+# mkdir var
 ```
 
 Agora precisamos adicionar esse novo disco à tabela de partição, para que seja montado durante o boot do sistema.
 Vamos editar o arquivo [fstab](https://man7.org/linux/man-pages/man5/fstab.5.html) e adicionar a seguinte linha ao final:
 
-```shell
-vi /etc/fstab
+```
+# vi /etc/fstab
 /dev/mapper/VGVAR-bkpvar /var xfs defaults 0 1
 ```
 
 Ao utilizar o comando `mount -a`, que montará todos os sistemas de arquivos declarados no arquivo fstab, o sistema me apresenta essa mensagem:
 
-```shell
-mount -a
+```
+# mount -a
 mount: (hint) your fstab has been modified, but systemd still uses
        the old version; use 'systemctl daemon-reload' to reload.
 ```
 
 Como o sistema GNU/Linux “é seu amigo”, ele informa o que fazer:
 
-```shell
-systemctl daemon-reload
+```
+# systemctl daemon-reload
 ```
 
 Verificando os pontos de montagem:
 
-```shell
-mount | grep -E "(/dev/sda|mapper)"
+```
+# mount | grep -E "(/dev/sda|mapper)"
 /dev/sda1 on / type xfs (rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,noquota)
 /dev/mapper/VGVAR-bkpvar on /var type xfs (rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,noquota)
 ```
 
 Por fim, removemos o diretório o diretório */var_bkp* da raiz do sistema (como boa prática, é recomendável realizar a cópia do diretório para uma unidade de armazenamento externa):
 
-```shell
-rm -rf /var_bkp
+```
+# rm -rf /var_bkp
 
-df -hT
+# df -hT
 Filesystem               Type      Size  Used Avail Use% Mounted on
 /dev/sda1                xfs       9.0G  1.9G  7.2G  21% /
 /dev/mapper/VGVAR-bkpvar xfs        20G  7.4G   13G  37% /var
@@ -383,9 +383,8 @@ Todos os discos serão inseridos um por vez. O preenchimento dos discos de 2GB, 
 
 Todo o procedimento de como preparar um disco para uso do LVM, já foi apresentado no tópico **Preparando o disco secundário** deste documento.
 
-```shell
-fdisk -l /dev/sdb
-
+```
+# fdisk -l /dev/sdb
 Disk /dev/sdb: 2 GiB, 2147483648 bytes, 4194304 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -399,30 +398,23 @@ Device     Boot Start     End Sectors Size Id Type
 
 Próximo passo será criar um VG e montar o volume lógico, de forma persistente, em um diretório */backup*:
 
-```shell
-pvcreate /dev/sdb1
+```
+# pvcreate /dev/sdb1
 
+# vgcreate VGDADOS /dev/sdb1 
 
-vgcreate VGDADOS /dev/sdb1 
+# lvcreate -l 511 -n bkpdata VGDADOS
 
+# mkfs.ext4 /dev/VGDADOS/bkpdata
 
-lvcreate -l 511 -n bkpdata VGDADOS
-
-
-mkfs.ext4 /dev/VGDADOS/bkpdata
-
-
-vi /etc/fstab
+# vi /etc/fstab
 /dev/mapper/VGDADOS-bkpdata /backup ext4 defaults 0 1
 
+# mkdir /backup
 
-mkdir /backup
+# mount -a
 
-
-mount -a
-
-
-df -hT
+# df -hT
 Filesystem                  Type      Size  Used Avail Use% Mounted on
 /dev/mapper/vg0-lv0--root   ext4       18G  5.1G   12G  31% /
 /dev/sda2                   ext4      974M  209M  699M  23% /boot
@@ -431,15 +423,15 @@ Filesystem                  Type      Size  Used Avail Use% Mounted on
 
 Criando dois arquivos de 1GB:
 
-```shell
-fallocate -l 1G /backup/data01
-fallocate -l 1G /backup/data02
+```
+# fallocate -l 1G /backup/data01
+# fallocate -l 1G /backup/data02
 ```
 
 Verificando o espaço:
 
-```shell
-df -hT /dev/mapper/VGDADOS-bkpdata 
+```
+# df -hT /dev/mapper/VGDADOS-bkpdata 
 Filesystem                  Type  Size  Used Avail Use% Mounted on
 /dev/mapper/VGDADOS-bkpdata ext4  2.0G  2.0G     0 100% /backup
 ```
@@ -448,9 +440,8 @@ Todo o espaço de armazenamento foi preenchido. Vamos desligar a VM e inserir o 
 
 ### Disco 2
 
-```shell
-fdisk -l /dev/sdc
-
+```
+# fdisk -l /dev/sdc
 Disk /dev/sdc: 2 GiB, 2147483648 bytes, 4194304 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -462,22 +453,22 @@ Device     Boot Start     End Sectors Size Id Type
 /dev/sdc1        2048 4194303 4192256   2G 8e Linux LVM
 ```
 
-```shell
-pvcreate /dev/sdc1
+```
+# pvcreate /dev/sdc1
 ```
 
 Após criar o PV, precisamos adicioná-lo ao grupo **VGDADOS**. Esse procedimento irá aumentar o espaço do grupo, permitindo criar ou estender volumes lógicos.<br>
 Utilizaremos o comando [`vgextend`](https://man7.org/linux/man-pages/man8/vgextend.8.html):
 
-```shell
-vgextend VGDADOS /dev/sdc1
+```
+# vgextend VGDADOS /dev/sdc1
   Volume group "VGDADOS" successfully extended
 ```
 
 Verificando o espaço do VG:
 
-```shell
-vgdisplay VGDADOS
+```
+# vgdisplay VGDADOS
   --- Volume group ---
   VG Name               VGDADOS
   System ID             
@@ -504,8 +495,8 @@ A saída do comando anterior apresenta que, além do VG conter dois discos assoc
 
 A seguir, precisamos adicionar os novos PEs ao LV existente:
 
-```shell
-lvextend -l+511 -r /dev/VGDADOS/bkpdata
+```
+# lvextend -l+511 -r /dev/VGDADOS/bkpdata
   Size of logical volume VGDADOS/bkpdata changed from <2.00 GiB (511 extents) to 3.99 GiB (1022 extents).
   Logical volume VGDADOS/bkpdata successfully resized.
 resize2fs 1.45.5 (07-Jan-2020)
@@ -523,8 +514,8 @@ A grande vantagem de se utilizar LVM é poder gerenciar os discos de forma “on
 
 Verificando o espaço do LV:
 
-```shell
-lvdisplay /dev/VGDADOS/bkpdata
+```
+# lvdisplay /dev/VGDADOS/bkpdata
   --- Logical volume ---
   LV Path                /dev/VGDADOS/bkpdata
   LV Name                bkpdata
@@ -544,28 +535,27 @@ lvdisplay /dev/VGDADOS/bkpdata
 
 Verificando o espaço:
 
-```shell
-df -hT /dev/mapper/VGDADOS-bkpdata 
+```
+# df -hT /dev/mapper/VGDADOS-bkpdata 
 Filesystem                  Type  Size  Used Avail Use% Mounted on
 /dev/mapper/VGDADOS-bkpdata ext4  3.9G  2.0G  1.8G  52% /backup
 ```
 
 Criando dois arquivos de 1GB:
 
-```shell
-fallocate -l 1G /backup/data03
-fallocate -l 1G /backup/data04
+```
+# fallocate -l 1G /backup/data03
+# fallocate -l 1G /backup/data04
 
-df -hT /dev/mapper/VGDADOS-bkpdata 
+# df -hT /dev/mapper/VGDADOS-bkpdata 
 Filesystem                  Type  Size  Used Avail Use% Mounted on
 /dev/mapper/VGDADOS-bkpdata ext4  3.9G  3.9G     0 100% /backup
 ```
 
 ### Disco 3
 
-```shell
-fdisk -l /dev/sdd
-
+```
+# fdisk -l /dev/sdd
 Disk /dev/sdd: 2 GiB, 2147483648 bytes, 4194304 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -576,26 +566,20 @@ Disk identifier: 0xb3063cfe
 Device     Boot Start     End Sectors Size Id Type
 /dev/sdd1        2048 4194303 4192256   2G 8e Linux LVM
 
+# pvcreate /dev/sdd1
 
-pvcreate /dev/sdd1
+# vgextend VGDADOS /dev/sdd1
 
+# lvextend -l+511 -r /dev/VGDADOS/bkpdata
 
-vgextend VGDADOS /dev/sdd1
-
-
-lvextend -l+511 -r /dev/VGDADOS/bkpdata
-
-
-df -hT /dev/mapper/VGDADOS-bkpdata
+# df -hT /dev/mapper/VGDADOS-bkpdata
 Filesystem                  Type  Size  Used Avail Use% Mounted on
 /dev/mapper/VGDADOS-bkpdata ext4  5.9G  3.9G  1.8G  70% /backup
 
+# fallocate -l 1G /backup/data05
+# fallocate -l 1G /backup/data06
 
-fallocate -l 1G /backup/data05
-fallocate -l 1G /backup/data06
-
-
-df -hT /dev/mapper/VGDADOS-bkpdata
+# df -hT /dev/mapper/VGDADOS-bkpdata
 Filesystem                  Type  Size  Used Avail Use% Mounted on
 /dev/mapper/VGDADOS-bkpdata ext4  5.9G  5.9G     0 100% /backup
 ```
@@ -608,9 +592,8 @@ Ao concluir a migração, removeremos os discos, do servidor, ficando apenas doi
 * O inicial de 20GB;
 * E o de Backup, com 10GB.
 
-```shell
-fdisk -l /dev/sde
-
+```
+# fdisk -l /dev/sde
 Disk /dev/sde: 10 GiB, 10737418240 bytes, 20971520 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -622,11 +605,10 @@ Device     Boot Start      End  Sectors Size Id Type
 /dev/sde1        2048 20971519 20969472  10G 8e Linux LVM
 ```
 
-```shell
-pvcreate /dev/sde1
+```
+# pvcreate /dev/sde1
 
-
-pvs /dev/vd{b..e}1 -o+devices
+# pvs /dev/vd{b..e}1 -o+devices
   PV         VG      Fmt  Attr PSize   PFree   Devices     
   /dev/sdb1  VGDADOS lvm2 a--   <2.00g      0  /dev/sdb1(0)
   /dev/sdc1  VGDADOS lvm2 a--   <2.00g      0  /dev/sdc1(0)
@@ -634,28 +616,27 @@ pvs /dev/vd{b..e}1 -o+devices
   /dev/sde1  VGDADOS lvm2 a--  <10.00g <10.00g
 ```
 
-```shell
-vgextend VGDADOS /dev/sde1
+```
+# vgextend VGDADOS /dev/sde1
 
-
-vgs -o+devices VGDADOS 
+# vgs -o+devices VGDADOS 
   VG       PV  LV  SN Attr   VSize  VFree   Devices     
   VGDADOS   4   1   0 wz--n- 15.98g <10.00g /dev/sde1(0)
 ```
 
-Após adicionar o quarto disco de 10GB ao VG, precisamos mover as extensões físicas (PE) dos outros discos (PV).
-Vamos utilizar o comando [pvmove](https://man7.org/linux/man-pages/man8/pvmove.8.html):
+Após adicionar o quarto disco de 10GB ao VG, precisamos mover as extensões físicas (PE) dos outros discos (PV).<br>
+Vamos utilizar o comando [`pvmove`](https://man7.org/linux/man-pages/man8/pvmove.8.html):
 
-```shell
-pvmove /dev/sdb1 /dev/sde1
-pvmove /dev/sdc1 /dev/sde1
-pvmove /dev/sdd1 /dev/sde1
+```
+# pvmove /dev/sdb1 /dev/sde1
+# pvmove /dev/sdc1 /dev/sde1
+# pvmove /dev/sdd1 /dev/sde1
 ```
 
 Verificando os PVs:
 
-```shell
-pvs /dev/vd{b..e}1 -o+devices
+```
+# pvs /dev/vd{b..e}1 -o+devices
   PV         VG      Fmt  Attr PSize   PFree  Devices     
   /dev/sdb1  VGDADOS lvm2 a--   <2.00g <2.00g             
   /dev/sdc1  VGDADOS lvm2 a--   <2.00g <2.00g             
@@ -664,21 +645,22 @@ pvs /dev/vd{b..e}1 -o+devices
   /dev/sde1  VGDADOS lvm2 a--  <10.00g <4.01g
 ```
 
-O próximo passo será remover os volumes físicos (discos defeituosos) do grupo de volume.<br> Faremos isso como comando [vgreduce](https://man7.org/linux/man-pages/man8/vgreduce.8.html):
+O próximo passo será remover os volumes físicos (discos defeituosos) do grupo de volume.<br>
+Faremos isso como comando [`vgreduce`](https://man7.org/linux/man-pages/man8/vgreduce.8.html):
 
-```shell
-vgreduce VGDADOS /dev/sdb1
+```
+# vgreduce VGDADOS /dev/sdb1
   Removed "/dev/sdb1" from volume group "VGDADOS"
-vgreduce VGDADOS /dev/sdc1 
+# vgreduce VGDADOS /dev/sdc1 
   Removed "/dev/sdc1" from volume group "VGDADOS"
-vgreduce VGDADOS /dev/sdd1 
+# vgreduce VGDADOS /dev/sdd1 
   Removed "/dev/sdd1" from volume group "VGDADOS"
 ```
 
 Verificando o VG:
 
-```shell
-vgdisplay VGDADOS
+```
+# vgdisplay VGDADOS
   --- Volume group ---
   VG Name               VGDADOS
   System ID             
@@ -701,21 +683,22 @@ vgdisplay VGDADOS
   VG UUID               gjD86c-z2uq-nUGi-0NpF-1gn0-0o1O-P5Wemi
 ```
 
-Com os PVs removidos do VG, precisamos remover a “etiqueta” (metadados), para que o LVM não os reconheça.<br> O comando [pvremove](https://man7.org/linux/man-pages/man8/pvremove.8.html) fará isso:
+Com os PVs removidos do VG, precisamos remover a “etiqueta” (metadados), para que o LVM não os reconheça.<br>
+O comando [`pvremove`](https://man7.org/linux/man-pages/man8/pvremove.8.html) fará isso:
 
-```shell
-pvremove /dev/sdb1 
+```
+# pvremove /dev/sdb1 
   Labels on physical volume "/dev/sdb1" successfully wiped.
-pvremove /dev/sdc1 
+# pvremove /dev/sdc1 
   Labels on physical volume "/dev/sdc1" successfully wiped.
-pvremove /dev/sdd1 
+# pvremove /dev/sdd1 
   Labels on physical volume "/dev/sdd1" successfully wiped.
 ```
 
 Verificando o PV:
 
-```shell
-pvs -o+devices /dev/sde1
+```
+# pvs -o+devices /dev/sde1
   PV         VG      Fmt  Attr PSize   PFree  Devices     
   /dev/sde1  VGDADOS lvm2 a--  <10.00g <4.01g /dev/sde1(0)
   /dev/sde1  VGDADOS lvm2 a--  <10.00g <4.01g
@@ -723,15 +706,14 @@ pvs -o+devices /dev/sde1
 
 Por fim, vamos adicionar os PEs restantes ao LV:
 
-```shell
-lvextend -l+1026 -r /dev/VGDADOS/bkpdata
+```
+# lvextend -l+1026 -r /dev/VGDADOS/bkpdata
 ```
 
 Após desligar o servidor e remover os discos, verificamos os dados:
 
-```shell
-fdisk -l /dev/vd{a..b}
-
+```
+# fdisk -l /dev/vd{a..b}
 Disk /dev/sda: 20 GiB, 21474836480 bytes, 41943040 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -754,14 +736,12 @@ Disk identifier: 0x871ae9e8
 Device     Boot Start      End  Sectors Size Id Type
 /dev/sdb1        2048 20971519 20969472  10G 8e Linux LVM
 
-
-df -hT | grep -Ev "(udev|tmpfs|loop)"
+# df -hT | grep -Ev "(udev|tmpfs|loop)"
 Filesystem                  Type      Size  Used Avail Use% Mounted on
 /dev/mapper/vg0-lv0--root   ext4       18G  5.1G   12G  31% /
 /dev/sda2                   ext4      974M  209M  699M  23% /boot
 /dev/mapper/VGDADOS-bkpdata ext4      9.8G  5.9G  3.6G  63% /backup
 
-
-ls /backup/
+# ls /backup/
 data01  data02  data03  data04  data05  data06
 ```
