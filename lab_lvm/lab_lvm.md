@@ -25,7 +25,7 @@ O software de virtualização utilizado foi o Oracle VirtualBox 7.0, com as segu
 
 <br>
 
-> O nível de execução utilizado, em todo laboratório, foi o [runlevel 3](https://man7.org/linux/man-pages/man8/runlevel.8.html).
+> O nível de execução utilizado, em todo laboratório, foi o **runlevel 3**.
 Caso não esteja definido (pode verificar com o comando `who -r` ou `runlevel`), utilize o comando `systemctl set-default multi-user.target`.
 
 #### Gerenciador de Volume Lógico
@@ -65,7 +65,7 @@ Device     Boot    Start      End  Sectors  Size Id Type
 Como “boa prática” isso não é interessante, visando longo prazo. Recomenda-se que os diretórios onde haverá uma alta demanda, sejam separados da partição raiz. Os diretórios */home* e */var* são exemplos disso: o primeiro para dados dos usuários e segundo fundamental para os serviços do sistema e auditoria (logs).
 
 Para este laboratório, vamos simular (porém é algo bastante comum) que todo o armazenamento disponível, está sendo consumido pelo diretório */var*.
-Com o utilitário [fallocate](https://man7.org/linux/man-pages/man1/fallocate.1.html) alocaremos espaço em disco, em um arquivo específico, sem realmente escrever nenhum dado nele.
+Com o utilitário `fallocate` alocaremos espaço em disco, em um arquivo específico, sem realmente escrever nenhum dado nele.
 
 Vamos criar um arquivo *vardata01* dentro do diretório */var*, utilizando todo o espaço disponível.
 
@@ -104,7 +104,7 @@ Como já dito, esse cenário pode apresentar problemas graves para serviços ess
 ### Preparando o disco secundário
 
 Precisamos adicionar um novo disco, que terá o tamanho de 20GB, ao servidor e preparar para utilizar LVM.
-Para isso, vamos fazer uso do utilitário [fdisk](https://man7.org/linux/man-pages/man8/fdisk.8.html):
+Para isso, vamos fazer uso do utilitário `fdisk`:
 
 ```
 # fdisk /dev/sdb
@@ -157,7 +157,7 @@ Device     Boot Start      End  Sectors Size Id Type
 
 Com o procedimento anterior, realizamos o particionamento do disco e escolhemos o tipo, que foi o LVM (8e), necessário para prosseguirmos.
 
-Agora podemos criar um volume físico (PV), com o comando [`pvcreate`](https://man7.org/linux/man-pages/man8/pvcreate.8.html):
+Agora podemos criar um volume físico (PV), com o comando `pvcreate`:
 
 ```
 # pvcreate /dev/sdb1
@@ -182,7 +182,7 @@ Verificando os dados do PV:
   PV UUID               ws5hvK-G6ue-jMJF-LhkY-kvgZ-TQY4-4zD6wQ
 ```
 
-Com o volume físico criado, podemos criar um grupo de volume (VG), com o comando [`vgcreate`](https://man7.org/linux/man-pages/man8/vgcreate.8.html):
+Com o volume físico criado, podemos criar um grupo de volume (VG), com o comando `vgcreate`:
 
 ```
 # vgcreate VGVAR /dev/sdb1 
@@ -222,7 +222,7 @@ Por fim, criamos o volume lógico (LV):
   Logical volume "bkpvar" created.
 ```
 
-O comando [`lvcreate`](https://man7.org/linux/man-pages/man8/lvcreate.8.html) possui duas opções específicas para definirmos o tamanho:
+O comando `lvcreate` possui duas opções específicas para definirmos o tamanho:
 
 * **-l**: Baseado no total de PEs (**Free PE**);
 * **-L**: Baseado no espaço total disponível (**Free Size**).
@@ -250,7 +250,7 @@ Verificando os dados do LV:
   Block device           252:0
 ```
 
-Agora precisamos construir um sistema de arquivo para o LV. Com o utilitário [mkfs](https://man7.org/linux/man-pages/man8/mkfs.8.html) esse procedimento será realizado de forma simples e rápida:
+Agora precisamos construir um sistema de arquivo para o LV. Com o utilitário `mkfs` esse procedimento será realizado de forma simples e rápida:
 
 ```
 # mkfs.xfs /dev/VGVAR/bkpvar 
@@ -274,7 +274,7 @@ Após isso, montamos o LV no diretório criado:
 # mount /dev/mapper/VGVAR-bkpvar /mnt/var_old/
 ```
 
-Com o utilitário [rsync](https://man7.org/linux/man-pages/man1/rsync.1.html), realizamos o backup completo do diretório /var:
+Com o utilitário `rsync`, realizamos o backup completo do diretório */var*:
 
 ```
 # rsync -aX /var/. /mnt/var_old/.
@@ -303,7 +303,7 @@ A sequência de comandos a seguir, realizará esse procedimento:
 ```
 
 Agora precisamos adicionar esse novo disco à tabela de partição, para que seja montado durante o boot do sistema.
-Vamos editar o arquivo [fstab](https://man7.org/linux/man-pages/man5/fstab.5.html) e adicionar a seguinte linha ao final:
+Vamos editar o arquivo *fstab* e adicionar a seguinte linha ao final:
 
 ```
 # vi /etc/fstab
@@ -457,8 +457,8 @@ Device     Boot Start     End Sectors Size Id Type
 # pvcreate /dev/sdc1
 ```
 
-Após criar o PV, precisamos adicioná-lo ao grupo **VGDADOS**. Esse procedimento irá aumentar o espaço do grupo, permitindo criar ou estender volumes lógicos.<br>
-Utilizaremos o comando [`vgextend`](https://man7.org/linux/man-pages/man8/vgextend.8.html):
+Após criar o PV, precisamos adicioná-lo ao grupo **VGDADOS**. Esse procedimento aumentará o espaço do grupo, permitindo criar ou estender volumes lógicos.<br>
+Utilizaremos o comando `vgextend`:
 
 ```
 # vgextend VGDADOS /dev/sdc1
@@ -505,7 +505,7 @@ old_desc_blocks = 1, new_desc_blocks = 1
 The filesystem on /dev/mapper/VGDADOS-bkpdata is now 1046528 (4k) blocks long.
 ```
 
-O comando [`lvextend`](https://man7.org/linux/man-pages/man8/lvextend.8.html) é utilizado para adicionar espaço a um LV. As opções utilizadas foram:
+O comando `lvextend` é utilizado para adicionar espaço a um LV. As opções utilizadas foram:
 
 * **-l+511**: Estamos adicionando (+) a quantidade de PE (511) disponível no VG;
 * **-r**: Redimensiona o sistema de arquivo.
@@ -625,7 +625,7 @@ Device     Boot Start      End  Sectors Size Id Type
 ```
 
 Após adicionar o quarto disco de 10GB ao VG, precisamos mover as extensões físicas (PE) dos outros discos (PV).<br>
-Vamos utilizar o comando [`pvmove`](https://man7.org/linux/man-pages/man8/pvmove.8.html):
+Vamos utilizar o comando `pvmove`:
 
 ```
 # pvmove /dev/sdb1 /dev/sde1
@@ -646,7 +646,7 @@ Verificando os PVs:
 ```
 
 O próximo passo será remover os volumes físicos (discos defeituosos) do grupo de volume.<br>
-Faremos isso como comando [`vgreduce`](https://man7.org/linux/man-pages/man8/vgreduce.8.html):
+Faremos isso como comando `vgreduce`:
 
 ```
 # vgreduce VGDADOS /dev/sdb1
@@ -684,7 +684,7 @@ Verificando o VG:
 ```
 
 Com os PVs removidos do VG, precisamos remover a “etiqueta” (metadados), para que o LVM não os reconheça.<br>
-O comando [`pvremove`](https://man7.org/linux/man-pages/man8/pvremove.8.html) fará isso:
+O comando `pvremove` fará isso:
 
 ```
 # pvremove /dev/sdb1 

@@ -191,7 +191,7 @@ Esse cenário é um grave problema de segurança, que deve ser evitado com o con
 
 #### Como o iptables funciona
 
-As opções e parâmetros do comando [`iptables`](https://man7.org/linux/man-pages/man8/iptables.8.html), que foram utilizados durante todo o laboratório, serão descritos a seguir (letras maiúsculas **precisam** ser respeitadas):
+As opções e parâmetros do comando `iptables`, que foram utilizados durante todo o laboratório, serão descritos a seguir (letras maiúsculas **precisam** ser respeitadas):
 
 * **-A**: Adiciona uma regra ao final da cadeia (--append);
 * **-I**: Insere (--insert) uma regra sempre, por padrão, ao topo da cadeia (pode ser especificado um número para indicar a posição);
@@ -351,7 +351,7 @@ kern.warning    -/var/log/iptables.log
 
 Com isso, o arquivo *iptables.log* pode ser consultado apenas para visualizar as informações referente aos prefixos definidos nas regras.
 
-Como o nível de log, na regra do iptables, foi definido como alerta [(--log-level 4)](https://man7.org/linux/man-pages/man8/iptables-extensions.8.html) para os prefixos DROP, a prioridade também precisa ser alerta [(kern.warning)](https://man7.org/linux/man-pages/man5/rsyslog.conf.5.html).
+Como o nível de log, na regra do iptables, foi definido como alerta *--log-level 4* para os prefixos DROP, a prioridade também precisa ser alerta *kern.warning*.
 
 Após editar o arquivo, precisamos reiniciar o serviço do rsyslog:
 
@@ -792,7 +792,7 @@ PermitRootLogin no
 ```
 
 Após configurar o arquivo sshd_config, precisamos informar ao [SELinux](https://docs.rockylinux.org/guides/security/learning_selinux/) (que não permite a conexão via SSH por outra porta que não seja a padrão (**22**)) permitir que a “nova porta" seja utilizada.<br>
-Precisamos instalar o utilitário [semanage](https://man7.org/linux/man-pages/man8/semanage.8.html) (caso não venha instalado):
+Precisamos instalar o utilitário `semanage` (caso não venha instalado):
 
 ```
 # dnf install policycoreutils-python-utils
@@ -814,8 +814,8 @@ Ao final, reiniciamos o serviço:
 
 >**Configuração utilizada em todas as VMs.**
 
-Outra mudança que o Rocky Linux 9 trouxe foi a adoção, por padrão, do [firewalld](https://docs.rockylinux.org/en/guides/security/firewalld-beginners/) como sistema de firewall.
-Porém, nosso laboratório foi implementado com iptables e, apesar de ter se tornado [obsoleto](https://docs.rockylinux.org/en/guides/security/enabling_iptables_firewall/), vamos utilizá-lo.
+Outra mudança que o Rocky Linux 9 trouxe foi a adoção, por padrão, do [firewalld](https://docs.rockylinux.org/guides/security/firewalld-beginners/) como sistema de firewall.
+Porém, nosso laboratório foi implementado com iptables e, apesar de ter se tornado [obsoleto](https://docs.rockylinux.org/guides/security/enabling_iptables_firewall/), vamos utilizá-lo.
 
 > O procedimento a seguir é desencorajado, e será utilizado apenas para fins de testes e laboratório.
 
@@ -843,7 +843,7 @@ Após este procedimento, instalaremos o iptables:
 # dnf install iptables-services iptables-utils
 ```
 
-Quando instalamos um pacote em distribuições baseadas em RHEL (*Red Hat Enterprise Linux*), e o mesmo possui algum serviço que rodará como *daemon* (processos que são executados em segundo plano), eles não iniciam e não habilitam a inicialização automática, após um boot ou reboot.
+Quando instalamos um pacote em distribuições baseadas em RHEL (*Red Hat Enterprise Linux*), e o mesmo possui algum serviço que rodará como *daemon* (processos que são executados em segundo plano), eles não iniciam e não habilitam a inicialização automática, após um *boot* ou *reboot*.
 
 Como o comando a seguir, faremos as duas coisas:
 
