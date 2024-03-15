@@ -4,7 +4,7 @@
 
 ### Proposta
 
-Montar um ambiente, de acordo com a topologia abaixo, provendo comunicação entre os servidores.  
+Montar um ambiente, conforme a topologia abaixo, provendo comunicação entre os servidores.
 
 ![Topologia](https://github.com/jplfalcao/doc/blob/main/lab_iptables/topologia.png)
 
@@ -12,47 +12,47 @@ Montar um ambiente, de acordo com a topologia abaixo, provendo comunicação ent
 
 Realizar a instalação, configuração e comunicação entre os servidores, utilizando GNU/Linux, definindo regras de Firewall para ambos.
 
-Para este laboratório serão criados quatro máquinas virtuais (VMs), que deverão seguir, **sem exceção**, as seguintes especificações:
+Para este laboratório serão criadas quatro máquinas virtuais (VMs), que deverão seguir, **sem exceção**, as seguintes especificações:
 
 VM01 – Roteador e Firewall:
 
-* Quatro placas de rede;
-* Ativar roteamento;
-* Aplicar regras de iptables, liberando a comunicação das VMs (2, 3 e 4) para a Internet;
-* Ativar serviço SSH para a porta 7654;
-* Criar usuário adm_lab com poder de sudo;
-* Usar o usuário adm_lab como usuário administrativo;
-* Bloquear o usuário root via console e ssh.
+- Quatro placas de rede;
+- Ativar roteamento;
+- Aplicar regras de iptables, liberando a comunicação das VMs (2, 3 e 4) para a Internet;
+- Ativar serviço SSH para a porta 7654;
+- Criar usuário *adm_lab* com poder de sudo;
+- Usar o usuário *adm_lab* como usuário administrativo;
+- Bloquear o usuário *root* via console e ssh.
 
 VM02:
 
-* Configurar a VM com IP da Rede A;
-* Liberar e validar comunicação via ICMP com a VM04;
-* Bloquear comunicação externa, exceto ICMP para a WEB;
-* Ativar serviço SSH para a porta 7654;
-* Criar usuário adm_lab com poder de sudo;
-* Usar o usuário adm_lab como usuário administrativo;
-* Bloquear o usuário root via console e ssh.
+- Configurar a VM com IP da Rede A;
+- Liberar e validar comunicação via ICMP com a VM04;
+- Bloquear comunicação externa, exceto ICMP para a WEB;
+- Ativar serviço SSH para a porta 7654;
+- Criar usuário *adm_lab* com poder de sudo;
+- Usar o usuário *adm_lab* como usuário administrativo;
+- Bloquear o usuário *root* via console e ssh.
 
 VM03:
 
-* Configurar a VM com IP da Rede B;
-* Liberar acesso a WEB;
-* Liberar e validar comunicação via SSH e ICMP com o Firewall;
-* Ativar serviço SSH para a porta 7654;
-* Criar usuário adm_lab com poder de sudo;
-* Usar o usuário adm_lab como usuário administrativo;
-* Bloquear usuário root via console e ssh.
+- Configurar a VM com IP da Rede B;
+- Liberar acesso a WEB;
+- Liberar e validar comunicação via SSH e ICMP com o Firewall;
+- Ativar serviço SSH para a porta 7654;
+- Criar usuário *adm_lab* com poder de sudo;
+- Usar o usuário *adm_lab* como usuário administrativo;
+- Bloquear usuário *root* via console e ssh.
 
 VM04:
 
-* Configurar a VM com IP da Rede C;
-* Liberar acesso ICMP para o DNS do google (8.8.8.8 e 8.8.4.4);
-* Liberar e validar comunicação via ICMP com a VM02;
-* Ativar serviço SSH para a porta 7654;
-* Criar usuário adm_lab com poder de sudo;
-* Usar o usuário adm_lab como usuário administrativo;
-* Bloquear usuário root via console e ssh.
+- Configurar a VM com IP da Rede C;
+- Liberar acesso ICMP para o DNS do google (8.8.8.8 e 8.8.4.4);
+- Liberar e validar comunicação via ICMP com a VM02;
+- Ativar serviço SSH para a porta 7654;
+- Criar usuário *adm_lab* com poder de sudo;
+- Usar o usuário *adm_lab* como usuário administrativo;
+- Bloquear usuário *root* via console e ssh.
 
 <br>
 
@@ -64,24 +64,24 @@ VM04:
 
 O software de virtualização utilizado foi o Oracle VirtualBox 7.0, com as seguintes especificações:
 
-* Ubuntu Server: 20.04.5 LTS;
-* Kernel: 5.4.0-137;
-* CPU: 1;
-* Memória RAM: 512 MB;
-* Disco HD de 20 GB particionado, onde:
-    * Partição 1º, com 10 GB, destinada a “raiz” (/), com sistema de arquivo ext4;
-    * Partição 2°, com 10 GB, destinada ao uso de LVM (*Logical Volume Manager*), onde será criado um grupo de volume *vg0*, que terá dois volumes lógicos:
-        * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo ext4;
-        * lv1-swap: Com 1 GB destinada ao *swap*, com o sistema de arquivo Swap.
-* Quatro placas de rede, onde:
-    * WAN: Modo *Bridge*, com endereço: 192.168.13.140/24;
-    * Rede A: Rede Interna *netA*, com endereço: 192.168.100.1/24;
-    * Rede B: Rede Interna *netB*, com endereço: 192.168.150.1/24;
-    * Rede C: Rede Interna *netC*, com endereço: 192.168.200.1/24.
+- Ubuntu Server: 20.04.5 LTS;
+- Kernel: 5.4.0-137;
+- CPU: 1;
+- Memória RAM: 512 MB;
+- Disco HD de 20 GB particionado, onde:
+    - Partição 1º, com 10 GB, destinada a “raiz” (/), com sistema de arquivo *ext4*;
+    - Partição 2°, com 10 GB, destinada ao uso de LVM (*Logical Volume Manager*), onde será criado um grupo de volume *vg0*, que terá dois volumes lógicos:
+        - lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo *ext4*;
+        - lv1-swap: Com 1 GB destinada ao *swap*, com o sistema de arquivo *Swap*.
+- Quatro placas de rede, onde:
+    - WAN: Modo *Bridge*, com endereço: 192.168.13.140/24;
+    - Rede A: Rede Interna *netA*, com endereço: 192.168.100.1/24;
+    - Rede B: Rede Interna *netB*, com endereço: 192.168.150.1/24;
+    - Rede C: Rede Interna *netC*, com endereço: 192.168.200.1/24.
 
 #### Gerenciamento de usuário
 
-Criando um usuário, adm_lab, com acesso administrativo:
+Criando um usuário, *adm_lab*, com acesso administrativo:
 
 ```
 # useradd -m -s /bin/ adm_lab
@@ -91,7 +91,7 @@ Criando um usuário, adm_lab, com acesso administrativo:
 # passwd adm_lab
 ```
 
-Bloqueando o usuário root:
+Bloqueando o usuário *root*:
 
 ```
 # passwd -l root
@@ -102,7 +102,7 @@ Bloqueando o usuário root:
 #### Configurando as interfaces de rede
 
 As interfaces de rede serão configuradas utilizando um arquivo de configuração individual, localizado no diretório */etc/netplan*, para cada interface.
-O [Netplan](https://netplan.io/) trabalha com arquivos [.yaml](https://yaml.org/), e eles tem uma particularidade: Precisam, e é obrigatório, que respeitem sua indentação.
+O [Netplan](https://netplan.io/) trabalha com arquivos [.yaml](https://yaml.org/), e eles têm uma particularidade: precisam, e é obrigatório, que respeitem sua indentação.
 Qualquer erro de digitação ou indentação, o arquivo será invalidado.
 
 > Foram utilizados dois espaços em branco, como indentação, em todos os arquivos *.yaml*.
@@ -167,7 +167,7 @@ Validando as configurações:
 
 #### Configurando o serviço SSH
 
-Alterando a porta padrão e bloqueando acesso com usuário root:
+Alterando a porta padrão e bloqueando acesso com usuário *root*:
 
 ```
 # vi /etc/ssh/sshd_config
@@ -183,7 +183,7 @@ Em seguida, precisamos reiniciar o serviço do SSH:
 
 #### Considerações sobre o firewall
 
-O iptables [(Netfilter)](https://www.netfilter.org/) é um firewall utilizado para filtragem de pacotes de redes.
+O iptables [(Netfilter)](https://www.netfilter.org/) é utilizado para filtragem de pacotes de redes.
 Todo o seu funcionamento se baseia na criação e administração de regras, referente a endereços/portas de origem/destino e protocolos.
 
 Após a instalação do servidor Ubuntu o iptables, por padrão, não vem com regras definidas e suas políticas padrão estão definidas para aceitar qualquer tráfego com origem de qualquer lugar.<br>
@@ -191,27 +191,27 @@ Esse cenário é um grave problema de segurança, que deve ser evitado com o con
 
 #### Como o iptables funciona
 
-As opções e parâmetros do comando `iptables`, que foram utilizados durante todo o laboratório, serão descritos a seguir (letras maiúsculas **precisam** ser respeitadas):
+As opções e parâmetros do comando `iptables`, que foram utilizados durante todo o laboratório, serão descritos a seguir (os parâmetros e opções com letras maiúsculas **precisam** ser respeitadas):
 
-* **-A**: Adiciona uma regra ao final da cadeia (--append);
-* **-I**: Insere (--insert) uma regra sempre, por padrão, ao topo da cadeia (pode ser especificado um número para indicar a posição);
-* **-P**: Define a política padrão da cadeia (--policy);
-* **-t**: Seleciona a tabela (--table);
-* **-i**: Interface de entrada (--in-interface);
-* **-o**: Interface de saída (--out-interface);
-* **-p**: Específica o protocolo que será utilizado (--protocol);
-* **-s**: Endereço IP de origem (--source);
-* **-d**: Endereço IP de destino (--destination);
-* **--dport**: (--destination-port) Porta de destino (quando é declarado um protocolo (*-p*), é necessário declarar uma porta);
-* **-j**: Define qual ação será tomada com cada regra (--jump). Os alvos utilizados foram:
+* **-A** (--append): Adiciona uma regra ao final da cadeia;
+* **-I** (--insert): Insere uma regra sempre, por padrão, ao topo da cadeia (pode ser especificado um número para indicar a posição da regra);
+* **-P** (--policy): Define a política padrão da cadeia;
+* **-t** (--table): Seleciona a tabela;
+* **-i** (--in-interface): Interface de entrada;
+* **-o** (--out-interface): Interface de saída;
+* **-p** (--protocol): Específica o protocolo que será utilizado;
+* **-s** (--source): Endereço IP de origem;
+* **-d** (--destination): Endereço IP de destino;
+* **--dport** (--destination-port): Porta de destino (quando é declarado um protocolo (*-p*), é necessário declarar uma porta);
+* **-j** (--jump): Define qual ação será tomada com cada regra. Os alvos utilizados foram:
     * **ACCEPT**: Aceita a passagem dos pacotes;
     * **DROP**: Bloqueia e descarta os pacotes;
     * **LOG**: Realiza o registro dos pacotes.
 * **-m state**: Habilita o módulo *state*, no qual monitora o estado da conexão;
-* **--state ESTABLISHED,RELATED**: Informa ao módulo state que todas as conexões que já foram estabelecidas e relatadas, sejam autorizadas.
+* **--state ESTABLISHED,RELATED**: Informa ao módulo *state* que todas as conexões que já foram estabelecidas e relatadas, sejam autorizadas.
 * **nat**: Tabela utilizada para redirecionamento de pacotes, onde:
-    * **POSTROUTING**: Altera os pacotes durante o encaminhamento:
-        * **MASQUERADE**: Permite o mascaramento de endereços IP de uma rede interna, utilizando um endereço IP externo;
+    * **POSTROUTING**: Altera os pacotes durante o encaminhamento;
+    * **MASQUERADE**: Permite o mascaramento de endereços IP de uma rede interna, utilizando um endereço IP externo.
 
 #### Aplicando regras
 
@@ -230,7 +230,7 @@ Para habilitar a comunicação entre as interfaces de rede, precisamos descoment
 net.ipv4.ip_forward=1
 ```
 
-Isso é necessário devido ao kernel, por padrão e segurança, não permitir comunicação entre as interfaces de rede.
+Isso é necessário devido ao *kernel*, por padrão e segurança, não permitir comunicação entre as interfaces de rede.
 
 Validando a modificação:
 
@@ -250,7 +250,7 @@ Todas as regras de filtragem estão nesta tabela, que tem por finalidade: permit
 Ela é constituída por três cadeias: **INPUT, FORWARD e OUTPUT**.
 Caso não seja informado a tabela (opção *-t* do comando `iptables`), a tabela *filter* sempre será a padrão.
 
-> O iptables trabalha lendo as regras de cima para baixo. A posição/ordem das regras tem total importância.
+> **O iptables trabalha lendo as regras de cima para baixo. A posição/ordem das regras tem total importância.**
 
 #### Cadeia INPUT
 
@@ -340,7 +340,8 @@ Onde:
 
 #### LOG do iptables
 
-Como boa prática e organização dos arquivos de log, é interessante direcionar os logs do iptables para um arquivo separado. Por padrão, o iptables envia suas mensagens para o buffer de mensagens do kernel, que popula o arquivo */var/log/syslog*.
+Como boa prática e organização dos arquivos de log, é interessante direcionar os logs do iptables para um arquivo separado.<br>
+Por padrão, o iptables envia suas mensagens para o buffer de mensagens do kernel, que popula o arquivo */var/log/syslog*.
 
 Para evitar isso, precisamos configurar o arquivo *50-default.conf* no diretório */etc/rsyslog.d*, adicionando a seguinte linha:
 
@@ -361,7 +362,7 @@ Após editar o arquivo, precisamos reiniciar o serviço do rsyslog:
 
 #### Salvando as regras
 
-Até o momento, todas as regras que adicionamos estão guardadas em memória.
+Até o momento, todas as regras que adicionamos estão salvas em memória.
 Se reiniciarmos o servidor, perderemos todas as regras. Evitamos tal situação, instalando o seguinte pacote:
 
 ```
@@ -388,7 +389,7 @@ Ou podemos restaurar regras salvas com:
 # iptables-restore < /diretorio/arquivo.regras
 ```
 
-> Durante o boot do sistema operacional, a leitura das regras será realizada, apenas, se forem salvas no arquivo */etc/iptables/rules.v4*.
+> **Durante o boot do sistema operacional, a leitura das regras será realizada, apenas, se forem salvas no arquivo */etc/iptables/rules.v4*.**
 
 ### VM02
 
@@ -399,10 +400,10 @@ Configuração:
 * CPU: 1;
 * Memória RAM: 512 MB;
 * Disco HD de 20 GB particionado, onde:
-* Partição 1º, com 10 GB, destinada ao “/” com sistema de arquivo ext4;
+* Partição 1º, com 10 GB, destinada ao “/” com sistema de arquivo *ext4*;
 * Partição 2°, com 10 GB, destinada ao uso de LVM (*Logical Volume Manager*), onde será criado um grupo de volume *vg0*, que terá dois volumes lógicos:
-    * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo ext4;
-    * lv1-swap: Com 1 GB destinada ao *swap*, com sistema de arquivo Swap.
+    * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo *ext4*;
+    * lv1-swap: Com 1 GB destinada ao *swap*, com sistema de arquivo *Swap*.
 * Placa de rede Interna *netA*, com endereço IP estático: 192.168.100.135/24;
 
 Configurando a interface de rede:
@@ -420,7 +421,7 @@ network:
         addresses: [192.168.13.1, 8.8.8.8]
 ```
 
-Criando um usuário, adm_lab, com acesso administrativo:
+Criando um usuário, *adm_lab*, com acesso administrativo:
 
 ```
 # useradd -m -s /bin/ adm_lab
@@ -430,7 +431,7 @@ Criando um usuário, adm_lab, com acesso administrativo:
 # passwd adm_lab
 ```
 
-Bloqueando o usuário root:
+Bloqueando o usuário *root*:
 
 ```
 # passwd -l root
@@ -438,7 +439,7 @@ Bloqueando o usuário root:
 # usermod -p '!' root
 ```
 
-Alterando a porta padrão, bloqueando acesso com usuário root, e reiniciando o serviço SSH:
+Alterando a porta padrão, bloqueando acesso com usuário *root*, e reiniciando o serviço SSH:
 
 ```
 # vi /etc/ssh/sshd_config
@@ -484,10 +485,10 @@ Configuração:
 * CPU: 1;
 * Memória RAM: 512 MB;
 * Disco HD de 20 GB particionado, onde:
-* Partição 1º, com 10 GB, destinada ao “/” com sistema de arquivo ext4;
+* Partição 1º, com 10 GB, destinada ao “/” com sistema de arquivo *ext4*;
 * Partição 2°, com 10 GB, destinada ao uso de LVM (*Logical Volume Manager*), onde será criado um grupo de volume *vg0*, que terá dois volumes lógicos:
-    * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo ext4;
-    * lv1-swap: Com 1 GB destinada ao *swap*, com sistema de arquivo Swap.
+    * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo *ext4*;
+    * lv1-swap: Com 1 GB destinada ao *swap*, com sistema de arquivo *Swap*.
 * Placa de rede Interna *netB*, com endereço IP estático: 192.168.150.230/24;
 
 Configurando a interface de rede:
@@ -505,7 +506,7 @@ network:
         addresses: [192.168.13.1, 8.8.8.8]
 ```
 
-Criando um usuário, adm_lab, com acesso administrativo:
+Criando um usuário, *adm_lab*, com acesso administrativo:
 
 ```
 # useradd -m -s /bin/ adm_lab
@@ -515,7 +516,7 @@ Criando um usuário, adm_lab, com acesso administrativo:
 # passwd adm_lab
 ```
 
-Bloqueando o usuário root:
+Bloqueando o usuário *root*:
 
 ```
 # passwd -l root
@@ -523,7 +524,7 @@ Bloqueando o usuário root:
 # usermod -p '!' root
 ```
 
-Alterando a porta padrão, bloqueando acesso com usuário root, e reiniciando o serviço SSH:
+Alterando a porta padrão, bloqueando acesso com usuário *root*, e reiniciando o serviço SSH:
 
 ```
 # vi /etc/ssh/sshd_config
@@ -572,10 +573,10 @@ Configuração:
 * CPU: 1;
 * Memória RAM: 512 MB;
 * Disco HD de 20 GB particionado, onde:
-* Partição 1º, com 10 GB, destinada ao “/” com sistema de arquivo ext4;
+* Partição 1º, com 10 GB, destinada ao “/” com sistema de arquivo *ext4*;
 * Partição 2°, com 10 GB, destinada ao uso de LVM (*Logical Volume Manager*), onde será criado um grupo de volume *vg0*, que terá dois volumes lógicos:
-    * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo ext4;
-    * lv1-swap: Com 1 GB destinada ao *swap*, com sistema de arquivo Swap.
+    * lv0-var: Com 9 GB destinada ao */var*, com sistema de arquivo *ext4*;
+    * lv1-swap: Com 1 GB destinada ao *swap*, com sistema de arquivo *Swap*.
 * Placa de rede Interna *netC*, com endereço IP estático: 192.168.200.30/24;
 
 Configurando a interface de rede:
@@ -593,7 +594,7 @@ network:
         addresses: [192.168.13.1, 8.8.8.8]
 ```
 
-Criando um usuário, adm_lab, com acesso administrativo:
+Criando um usuário, *adm_lab*, com acesso administrativo:
 
 ```
 # useradd -m -s /bin/ adm_lab
@@ -603,7 +604,7 @@ Criando um usuário, adm_lab, com acesso administrativo:
 # passwd adm_lab
 ```
 
-Bloqueando o usuário root:
+Bloqueando o usuário *root*:
 
 ```
 # passwd -l root
@@ -611,7 +612,7 @@ Bloqueando o usuário root:
 # usermod -p '!' root
 ```
 
-Alterando a porta padrão, bloqueando acesso com usuário root, e reiniciando o serviço SSH:
+Alterando a porta padrão, bloqueando acesso com usuário *root*, e reiniciando o serviço SSH:
 
 ```
 # vi /etc/ssh/sshd_config
@@ -670,8 +671,8 @@ Todas as configurações seguem, exatamente, o mesmo padrão conforme o tópico 
 
 Antes da versão Rocky Linux 9, as [configurações de rede](https://docs.rockylinux.org/guides/network/basic_network_configuration/) eram realizadas em um arquivo *ifcfg*, dentro do diretório */etc/sysconfig/network-scripts/*.
 
-Atualmente o gerenciamento de rede é feito pelo serviço [NetworkManager](https://docs.rockylinux.org/gemstones/RL9_network_manager/), que já está instalado por padrão.
-Para este laboratório, fiz uso do utilitário [nmcli](https://docs.rockylinux.org/gemstones/RL9_network_manager/#nmcli-command-recommended), que realiza a interação com o NetworkManager para configurar as interfaces:
+Atualmente, o gerenciamento de rede é feito pelo serviço *NetworkManager*, já instalado por padrão.
+Para este laboratório, fiz uso do utilitário *nmcli*, que realiza a interação com o *NetworkManager* para configurar as interfaces de rede.
 
 WAN:<br>
 (**nmcli>** é o prompt)
@@ -784,15 +785,15 @@ nmcli> quit
 
 >**Configuração utilizada em todas as VMs.**
 
-Alterando a porta padrão e bloqueando acesso com usuário root:
+Alterando a porta padrão e bloqueando acesso com usuário *root*:
 ```
 # vi /etc/ssh/sshd_config
 Port 7654
 PermitRootLogin no
 ```
 
-Após configurar o arquivo sshd_config, precisamos informar ao [SELinux](https://docs.rockylinux.org/guides/security/learning_selinux/) (que não permite a conexão via SSH por outra porta que não seja a padrão (**22**)) permitir que a “nova porta" seja utilizada.<br>
-Precisamos instalar o utilitário `semanage` (caso não venha instalado):
+Após configurar o arquivo *sshd_config*, precisamos informar ao [SELinux](https://docs.rockylinux.org/guides/security/learning_selinux/) (que não permite a conexão via SSH por outra porta que não seja a padrão (**22**)) permitir que a “nova porta" seja utilizada.<br>
+Precisamos instalar o utilitário `semanage` (caso não esteja instalado):
 
 ```
 # dnf install policycoreutils-python-utils
@@ -810,14 +811,14 @@ Ao final, reiniciamos o serviço:
 # systemctl restart sshd.service
 ```
 
-### Firewalld e iptables
+### Firewalld e IPtables
 
 >**Configuração utilizada em todas as VMs.**
 
 Outra mudança que o Rocky Linux 9 trouxe foi a adoção, por padrão, do [firewalld](https://docs.rockylinux.org/guides/security/firewalld-beginners/) como sistema de firewall.
 Porém, nosso laboratório foi implementado com iptables e, apesar de ter se tornado [obsoleto](https://docs.rockylinux.org/guides/security/enabling_iptables_firewall/), vamos utilizá-lo.
 
-> O procedimento a seguir é desencorajado, e será utilizado apenas para fins de testes e laboratório.
+> **O procedimento a seguir é desencorajado, e será utilizado apenas para fins de testes e laboratório.**
 
 Parando o serviço do firewalld:
 
